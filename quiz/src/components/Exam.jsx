@@ -1,50 +1,51 @@
-import {
-  Button,
-  Center,
-  Container,
-  Grid,
-  Title,
-} from "@mantine/core";
-import axios from "axios";
+import { Button, Center, Container, Grid, Title } from "@mantine/core";
 import { useEffect, useState } from "react";
 import UrgeWithPleasureComponent from "./Countdown";
 import { useMediaQuery } from "@mantine/hooks";
-const Exam = () => {
-  const [questions, setQuestion] = useState([]);
+const Exam = (props) => {
+  const [questions] = useState(props.questions);
   const [index, setIndex] = useState(0);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [btnActive, setBtnActive] = useState(true);
+  const [selecet, SetSelct] = useState(10);
+  const [seconds, SetSeconds] = useState(30);
+  const [data, setData] = useState({});
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setBtnActive(false);
-    }, 10000); 
-    return () => clearTimeout(timer);
+    }, 10000);
+   
+    const timer1 = setTimeout(() => {
+      if (index === 9) {
+        props.setAnswers(data);
+        props.status();
+      } else {
+        setIndex(index + 1);
+        SetSeconds(30);
+        SetSelct(10);
+        setBtnActive(true);
+      }
+    }, 30000);
+
+    return () =>{ clearTimeout(timer);clearTimeout(timer1);};
   }, [index]);
-  useEffect(() => {
-    axios.get("https://jsonplaceholder.typicode.com/posts").then((data) => {
-      let list = [];
-      data.data.slice(0, 10).forEach((element) => {
-        list.push({
-          id: element.id,
-          title: element.title,
-          choices: element.body.split("\n"),
-        });
-      });
-      setQuestion(list);
-    });
-  }, []);
+
+
+
   return (
     questions.length > 0 && (
-      <>
+      <Center h={"100vh"}>
+         <Container>
         <Center p={"xl"}>
-          <Grid>
+          <Grid style={{ width: "100%" }}>
             <Grid.Col span={10}>
               {" "}
               <Container
                 p={isMobile ? 10 : 50}
                 bg={"#ffbe06"}
-                style={{ borderRadius: "10px" }}
+                style={{ borderRadius: "10px", width: "100%" }}
                 mr={"sm"}
               >
                 <Title
@@ -53,37 +54,51 @@ const Exam = () => {
                   c="#fff"
                   align="center"
                 >
-                  {questions[index].title}
+                  {index + 1}) {questions[index].title}
                 </Title>
               </Container>
             </Grid.Col>
             <Grid.Col span={2}>
               <Center h={"100%"}>
-                <UrgeWithPleasureComponent duration={30} />
+                <UrgeWithPleasureComponent key={index} duration={seconds} />
               </Center>
             </Grid.Col>
           </Grid>
         </Center>
-        <Container
-              m={"sm"}
+        <Container m={"sm"}>
+          {questions[index].choices.map((data, num) => {
+            return (
+              <Button
+                disabled={btnActive}
+                c="#fff"
+                fw={500}
+                radius={"10px"}
+                size={isMobile ? "sm" : "xl"}
+                onClick={() => {
+                  SetSelct(num);
+                  setData((prevData) => ({
+                    ...prevData,
+                    [index]: num,
+                  }));
+                }}
+                style={{
+                  width: "100%",
+                  marginTop: "10px",
+                  textAlign: "start",
+                  backgroundColor: btnActive
+                    ? "gray"
+                    : selecet === num
+                    ? "#6a4bd6"
+                    : "#18b0fa",
+                }}
               >
- {questions[index].choices.map((data) => {
-          return (
-            <Button
-              disabled={btnActive}
-              c="#fff"
-              fw={500}
-              radius={"10px"}
-              size={isMobile ? "sm" : "xl"}
-              style={{ width: "100%", marginTop: "10px", textAlign: "start", backgroundColor:btnActive?"gray":"#18b0fa"}}
-            >
-              {data}
-            </Button>
-          );
-        })}
+                {data}
+              </Button>
+            );
+          })}
         </Container>
-       
-      </>
+      </Container>
+      </Center>
     )
   );
 };

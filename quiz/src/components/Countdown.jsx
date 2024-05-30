@@ -7,11 +7,13 @@ const UrgeWithPleasureComponent = (prop) => {
   
   return ( 
     <CountdownCircleTimer
+    key={prop.key}
     isPlaying
     duration={prop.duration}
     colors={['#004777', '#F7B801', '#A30000', '#A30000']}
     colorsTime={[20, 10, 5, 0]}
     size={isMobile?50:150}
+    
 
   >{({ remainingTime }) => remainingTime}
   </CountdownCircleTimer>
